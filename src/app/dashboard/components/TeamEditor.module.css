@@ -1,0 +1,42 @@
+/* TeamEditor component specific styles go here */ 
+.editorContainer {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(10,49,10,0.08);
+  border: 1px solid rgba(10,49,10,0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+.editorHeader {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(90deg, #22c55e, #ef4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+.input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(10,49,10,0.15);
+  border-radius: 0.5rem;
+  background: #f9fafb;
+  color: rgba(10,49,10,0.9);
+  margin-bottom: 1rem;
+}
+.button {
+  background: linear-gradient(90deg, #22c55e, #ef4444);
+  color: #fff;
+  font-weight: 500;
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+} 

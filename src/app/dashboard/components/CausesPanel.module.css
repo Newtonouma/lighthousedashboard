@@ -1,0 +1,15 @@
+/* CausesPanel component specific styles go here */ 
+.panel {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(10,49,10,0.08);
+    border: 1px solid rgba(10,49,10,0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .panelTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
