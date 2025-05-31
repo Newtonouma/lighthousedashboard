@@ -13,14 +13,16 @@ interface CauseCardProps {
 export default function CauseCard({ cause, onEdit, onDelete }: CauseCardProps) {
   return (
     <div className={styles.card}>
-      {cause.images && cause.images[0] && (
-        <Image
-          src={cause.images[0].url}
-          alt={cause.images[0].alt}
-          width={400}
-          height={192}
-          className={styles.cardImage}
-        />
+      {cause.imageUrl && (
+        <div className={styles.imageContainer}>
+          <Image
+            src={cause.imageUrl}
+            alt={`${cause.title} image`}
+            width={400}
+            height={200}
+            className={styles.cardImage}
+          />
+        </div>
       )}
       <div className={styles.cardContent}>
         <h2 className={styles.cardTitle}>{cause.title}</h2>
@@ -33,18 +35,18 @@ export default function CauseCard({ cause, onEdit, onDelete }: CauseCardProps) {
             {cause.category}
           </span>
           <span className={styles.causeGoal}>
-            Goal: ${cause.goal.toLocaleString()}
+            Goal: ${cause.goal}
           </span>
         </div>
         <div className={styles.cardActions}>
           <button 
-            className="btn-secondary"
+            className={styles.editButton}
             onClick={() => onEdit(cause)}
           >
             Edit
           </button>
           <button 
-            className="btn-danger"
+            className={styles.deleteButton}
             onClick={() => cause.id && onDelete(cause.id)}
           >
             Delete
@@ -53,4 +55,4 @@ export default function CauseCard({ cause, onEdit, onDelete }: CauseCardProps) {
       </div>
     </div>
   );
-} 
+}

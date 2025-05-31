@@ -22,12 +22,10 @@ export default function Login() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         throw error;
-      }
-
-      router.push('/dashboard');
+      }      router.push('/dashboard');
     } catch (err: unknown) {
-      if (err && typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string') {
-        setError((err as any).message);
+      if (err && typeof err === 'object' && 'message' in err && typeof (err as Error).message === 'string') {
+        setError((err as Error).message);
       } else {
         setError('Failed to login. Please try again.');
       }

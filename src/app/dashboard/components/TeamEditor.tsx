@@ -1,66 +1,37 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Team, CreateTeamDto } from '../../api/teams/types';
-import Image from 'next/image';
+import { useState } from 'react';
+import { Team, CreateTeamDto, UpdateTeamDto } from '../../api/teams/types';
+import ImageUpload from '@/components/ImageUpload';
 
 interface TeamEditorProps {
   team?: Team;
-  onSave: (team: CreateTeamDto) => Promise<void>;
+  onSave: (team: CreateTeamDto | UpdateTeamDto) => Promise<void>;
   onClose: () => void;
 }
 
 export default function TeamEditor({ team, onSave, onClose }: TeamEditorProps) {
-  const [formData, setFormData] = useState<CreateTeamDto>({
+  const [formData, setFormData] = useState({
     name: team?.name || '',
     description: team?.description || '',
     imageUrl: team?.imageUrl || '',
-    role: team?.role || '',
-    linkedinUrl: team?.linkedinUrl || '',
-    twitterUrl: team?.twitterUrl || '',
+    contact: team?.contact || '',
+    email: team?.email || '',
+    facebook: team?.facebook || '',
+    linkedin: team?.linkedin || '',
+    twitter: team?.twitter || '',
+    tiktok: team?.tiktok || '',
   });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(team?.imageUrl || null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Preview the image
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-
-    // Upload the image
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload image');
-      }
-
-      const data = await response.json();
-      setFormData(prev => ({ ...prev, imageUrl: data.url }));
-    } catch (err) {
-      setError('Failed to upload image. Please try again.');
-      console.error('Upload error:', err);
-    }
+  const handleImageUpload = (uploadResult: { url: string }) => {
+    setFormData(prev => ({ ...prev, imageUrl: uploadResult.url }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,7 +40,21 @@ export default function TeamEditor({ team, onSave, onClose }: TeamEditorProps) {
     setError(null);
 
     try {
-      await onSave(formData);
+      // Only send non-empty fields
+      const payload: Partial<Team> = {
+        name: formData.name.trim(),
+        description: formData.description,
+        imageUrl: formData.imageUrl
+      };
+
+      if (formData.contact.trim()) payload.contact = formData.contact.trim();
+      if (formData.email.trim()) payload.email = formData.email.trim();
+      if (formData.facebook.trim()) payload.facebook = formData.facebook.trim();
+      if (formData.linkedin.trim()) payload.linkedin = formData.linkedin.trim();
+      if (formData.twitter.trim()) payload.twitter = formData.twitter.trim();
+      if (formData.tiktok.trim()) payload.tiktok = formData.tiktok.trim();
+
+      await onSave(payload);
       onClose();
     } catch (err) {
       setError('Failed to save team member. Please try again.');
@@ -77,10 +62,6 @@ export default function TeamEditor({ team, onSave, onClose }: TeamEditorProps) {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
   };
 
   return (
@@ -112,19 +93,6 @@ export default function TeamEditor({ team, onSave, onClose }: TeamEditorProps) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="role">Role</label>
-            <input
-              type="text"
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-              placeholder="Enter team member's role"
-            />
-          </div>
-
-          <div className="form-group">
             <label htmlFor="description">Description</label>
             <textarea
               id="description"
@@ -139,75 +107,84 @@ export default function TeamEditor({ team, onSave, onClose }: TeamEditorProps) {
 
           <div className="form-group">
             <label>Profile Image</label>
-            <div className="image-upload-container">
-              {previewUrl ? (
-                <div className="image-preview">
-                  <Image
-                    src={previewUrl}
-                    alt="Preview"
-                    width={300}
-                    height={300}
-                    className="preview-image"
-                  />
-                  <button
-                    type="button"
-                    className="btn-remove-image"
-                    onClick={() => {
-                      setPreviewUrl(null);
-                      setFormData(prev => ({ ...prev, imageUrl: '' }));
-                      if (fileInputRef.current) {
-                        fileInputRef.current.value = '';
-                      }
-                    }}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ) : (
-                <div className="upload-placeholder">
-                  <p>Drag and drop an image here, or click to select</p>
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    onClick={triggerFileInput}
-                  >
-                    Choose Image
-                  </button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="image-input"
-                    aria-label="Upload profile image"
-                    style={{ display: 'none' }}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="linkedinUrl">LinkedIn URL</label>
-            <input
-              type="url"
-              id="linkedinUrl"
-              name="linkedinUrl"
-              value={formData.linkedinUrl}
-              onChange={handleChange}
-              placeholder="Enter LinkedIn profile URL"
+            <ImageUpload
+              currentImageUrl={formData.imageUrl}
+              onUpload={handleImageUpload}
+              onError={(error) => setError(error)}
+              folder="teams"
+              maxFileSize={10 * 1024 * 1024}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="twitterUrl">Twitter URL</label>
+            <label htmlFor="contact">Contact Number</label>
+            <input
+              type="tel"
+              id="contact"
+              name="contact"
+              value={formData.contact}
+              onChange={handleChange}
+              placeholder="Enter contact number (optional)"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter email address (optional)"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="linkedin">LinkedIn URL</label>
             <input
               type="url"
-              id="twitterUrl"
-              name="twitterUrl"
-              value={formData.twitterUrl}
+              id="linkedin"
+              name="linkedin"
+              value={formData.linkedin}
               onChange={handleChange}
-              placeholder="Enter Twitter profile URL"
+              placeholder="Enter LinkedIn profile URL (optional)"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="twitter">Twitter URL</label>
+            <input
+              type="url"
+              id="twitter"
+              name="twitter"
+              value={formData.twitter}
+              onChange={handleChange}
+              placeholder="Enter Twitter profile URL (optional)"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="facebook">Facebook URL</label>
+            <input
+              type="url"
+              id="facebook"
+              name="facebook"
+              value={formData.facebook}
+              onChange={handleChange}
+              placeholder="Enter Facebook profile URL (optional)"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="tiktok">TikTok URL</label>
+            <input
+              type="url"
+              id="tiktok"
+              name="tiktok"
+              value={formData.tiktok}
+              onChange={handleChange}
+              placeholder="Enter TikTok profile URL (optional)"
             />
           </div>
 
@@ -234,4 +211,4 @@ export default function TeamEditor({ team, onSave, onClose }: TeamEditorProps) {
       </div>
     </div>
   );
-} 
+}

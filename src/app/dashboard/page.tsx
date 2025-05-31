@@ -68,7 +68,7 @@ const DashboardContent = ({
   loading: boolean;
   error: string | null;
   onEditCause: (cause: Cause) => void;
-  onDeleteCause: (id: string) => Promise<void>;
+  onDeleteCause: (id: string) => Promise<boolean>;
   onCreateNewCause: () => void;
 }) => {
   if (loading) return <LoadingSpinner />;
@@ -124,26 +124,14 @@ export default function Dashboard() {
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error) throw error;
         if (!user) router.push('/login');
-        else setUser(user as User);
-      } catch (err: any) {
-        setAuthError(err.message || 'Failed to load user data');
+        else setUser(user as User);      } catch (err: unknown) {
+        setAuthError((err as Error)?.message || 'Failed to load user data');
       } finally {
         setIsAuthLoading(false);
       }
     };
     checkUser();
   }, [router]);
-
-  // Auth handlers
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      router.push('/login');
-    } catch (err: any) {
-      setAuthError(err.message || 'Failed to logout');
-    }
-  };
-
   // Cause handlers
   const handleCreateCause = async (newCause: Partial<Cause>) => {
     const success = await createCause(newCause);
@@ -188,9 +176,7 @@ export default function Dashboard() {
             onSave={handleEditCause}
             onClose={() => setEditingCause(null)}
           />
-        )}
-
-        {isCreating && (
+        )}        {isCreating && (
           <FullScreenEditor
             cause={{
               id: '',
@@ -198,7 +184,7 @@ export default function Dashboard() {
               description: '',
               category: '',
               goal: 0,
-              images: [],
+              imageUrl: '',
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString()
             }}
@@ -206,39 +192,6 @@ export default function Dashboard() {
             onClose={() => setIsCreating(false)}
           />
         )}
-      </div>
-
-      {/* User Info Dashboard (shown in parallel for demo - adjust as needed) */}
-      <div className="max-w-4xl mx-auto p-6 mt-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">User Information</h1>
-            <button
-              onClick={handleLogout}
-              className="btn btn-secondary"
-            >
-              Logout
-            </button>
-          </div>
-
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h2 className="text-lg font-semibold mb-2">Welcome back!</h2>
-            <p className="text-gray-600">
-              You are logged in as <span className="font-medium">{user?.email}</span>
-            </p>
-          </div>
-
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-blue-50 rounded-lg p-4">
-              <h3 className="font-semibold text-blue-800 mb-2">Account Information</h3>
-              <p className="text-sm text-blue-600">User ID: {user?.id}</p>
-            </div>
-            <div className="bg-green-50 rounded-lg p-4">
-              <h3 className="font-semibold text-green-800 mb-2">Session Status</h3>
-              <p className="text-sm text-green-600">Active</p>
-            </div>
-          </div>
-        </div>
       </div>
     </>
   );

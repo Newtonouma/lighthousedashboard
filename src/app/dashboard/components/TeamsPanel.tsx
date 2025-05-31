@@ -1,32 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Team } from '../../api/teams/types';
+import { useState } from 'react';
+import { Team, CreateTeamDto, UpdateTeamDto } from '../../api/teams/types';
 import { useTeams } from '../hooks/useTeams';
 import TeamCard from './TeamCard';
 import TeamEditor from './TeamEditor';
 import styles from "./TeamsPanel.module.css";
 
 export default function TeamsPanel() {
-  const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<Team | undefined>();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const { loading, error, fetchTeams, createTeam, updateTeam, deleteTeam } = useTeams();
-
-  useEffect(() => {
-    loadTeams();
-  }, []);
-
-  const loadTeams = async () => {
-    try {
-      const data = await fetchTeams();
-      if (data) {
-        setTeams(data);
-      }
-    } catch (err) {
-      console.error('Failed to load teams:', err);
-    }
-  };
+  
+  const { teams, loading, error, createTeam, updateTeam, deleteTeam } = useTeams();
 
   const handleCreate = () => {
     setSelectedTeam(undefined);
@@ -40,65 +25,63 @@ export default function TeamsPanel() {
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this team member?')) {
-      const success = await deleteTeam(id);
-      if (success) {
-        setTeams(teams.filter(team => team.id !== id));
-      }
+      await deleteTeam(id);
     }
   };
-
-  const handleSave = async (teamData: any) => {
-    let success;
-    if (selectedTeam) {
-      success = await updateTeam(selectedTeam.id, teamData);
-      if (success) {
-        setTeams(teams.map(team => 
-          team.id === selectedTeam.id ? { ...team, ...teamData } : team
-        ));
-      }
+  const handleSave = async (teamData: CreateTeamDto | UpdateTeamDto): Promise<void> => {
+    if (selectedTeam && selectedTeam.id) {
+      await updateTeam(selectedTeam.id, teamData as UpdateTeamDto);
     } else {
-      success = await createTeam(teamData);
-      if (success) {
-        await loadTeams(); // Reload to get the new team with ID
-      }
+      await createTeam(teamData as CreateTeamDto);
     }
-    return success;
   };
 
-  if (loading) {
-    return (
-      <div className={styles.teamsPanel}>
-        <div className={styles.loading}>Loading team members...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.teamsPanel}>
-        <div className={styles.errorMessage}>{error}</div>
-      </div>
-    );
-  }
+  const handleClose = () => {
+    setIsEditorOpen(false);
+    setSelectedTeam(undefined);
+  };
 
   return (
-    <div className={styles.teamsPanel}>
-      <div className={styles.panelHeader}>
-        <h2>Team Members</h2>
-        <button
-          className={styles.btnPrimary}
+    <div className={styles.container}>
+      {error && (
+        <div className={styles.errorContainer}>
+          <p className={styles.errorMessage}>
+            ⚠️ {error}
+          </p>
+        </div>
+      )}
+
+      <div className={styles.sectionHeader}>
+        <div className={styles.headerContent}>
+          <h1 className={styles.title}>Team Members</h1>
+          <p className={styles.subtitle}>Meet the amazing people behind our mission</p>
+        </div>
+        <button 
+          className={styles.createButton}
           onClick={handleCreate}
+          disabled={loading}
         >
-          Add Team Member
+          ✨ Add Team Member
         </button>
       </div>
 
-      {teams.length === 0 ? (
+      {loading ? (
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+        </div>
+      ) : teams.length === 0 ? (
         <div className={styles.emptyState}>
-          <p>No team members yet. Click "Add Team Member" to get started.</p>
+          <h3>No Team Members Yet</h3>
+          <p>Build your team by adding the amazing people who make your mission possible. Every great cause starts with great people.</p>
+          <button 
+            className={styles.emptyActionButton}
+            onClick={handleCreate}
+          >
+            Add Your First Team Member
+          </button>
         </div>
       ) : (
-        <div className={styles.teamsGrid}>
+        <div className={`${styles.cardGrid} ${loading ? styles.loading : ''}`}>
           {teams.map(team => (
             <TeamCard
               key={team.id}
@@ -114,12 +97,9 @@ export default function TeamsPanel() {
         <TeamEditor
           team={selectedTeam}
           onSave={handleSave}
-          onClose={() => {
-            setIsEditorOpen(false);
-            setSelectedTeam(undefined);
-          }}
+          onClose={handleClose}
         />
       )}
     </div>
   );
-} 
+}

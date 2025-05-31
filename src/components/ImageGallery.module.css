@@ -1,0 +1,78 @@
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.imageItem {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.imageItem:hover {
+  border-color: #e2e8f0;
+}
+
+.imageWrapper {
+  position: relative;
+  background: #f8fafc;
+}
+
+.image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.deleteButton {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: background-color 0.2s ease;
+}
+
+.deleteButton:hover {
+  background: rgba(239, 68, 68, 1);
+}
+
+.imageInfo {
+  padding: 0.5rem;
+  background: #f8fafc;
+  display: flex;
+  justify-content: center;
+}
+
+.order {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.emptyGallery {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+  border: 2px dashed #e2e8f0;
+  border-radius: 8px;
+}
+
+.emptyGallery p {
+  margin: 0;
+}

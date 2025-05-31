@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { Cause } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -11,7 +10,7 @@ export async function GET() {
     }
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: 'Error fetching causes' },
       { status: 500 }
@@ -22,12 +21,28 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log('Incoming body from frontend:', body);
+    console.log('Incoming cause data:', body);
 
-    // Basic validation
+    // Basic validation to match backend structure
     if (!body.title || typeof body.title !== 'string') {
       return NextResponse.json(
         { message: 'Title is required and must be a string', field: 'title' },
+        { status: 400 }
+      );
+    }
+
+    // Convert goal to number and validate
+    const goalValue = parseFloat(body.goal);
+    if (isNaN(goalValue) || goalValue < 0) {
+      return NextResponse.json(
+        { message: 'Goal is required and must be a number >= 0', field: 'goal' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.category || typeof body.category !== 'string') {
+      return NextResponse.json(
+        { message: 'Category is required and must be a string', field: 'category' },
         { status: 400 }
       );
     }
@@ -39,35 +54,23 @@ export async function POST(request: Request) {
       );
     }
 
-    const goal = Number(body.goal);
-    if (isNaN(goal) || goal < 0) {
+    if (!body.imageUrl || typeof body.imageUrl !== 'string') {
       return NextResponse.json(
-        { message: 'Goal must be a valid non-negative number', field: 'goal' },
+        { message: 'Image URL is required and must be a string', field: 'imageUrl' },
         { status: 400 }
       );
     }
 
-    // Clean and transform the data to match backend expectations
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    const cleanedBody = {
-      title: body.title.trim(),
-      description: body.description,
+    // Prepare payload for backend (exclude updatedAt, convert goal to number)
+    const backendPayload = {
+      title: body.title,
+      goal: goalValue,
       category: body.category,
-      goal: goal,
-      images: body.images?.map((img: { url: string; alt: string }) => {
-        // Ensure the URL is properly formatted
-        const imageUrl = img.url.startsWith('http') 
-          ? img.url 
-          : `${baseUrl}${img.url.startsWith('/') ? '' : '/'}${img.url}`;
-        
-        return {
-          url: imageUrl,
-          alt: img.alt || body.title.trim()
-        };
-      }) || []
+      description: body.description,
+      imageUrl: body.imageUrl
     };
 
-    console.log('Cleaned payload to backend:', cleanedBody);
+    console.log('Sending to backend:', backendPayload);
 
     const response = await fetch(`${API_URL}/causes`, {
       method: 'POST',
@@ -75,7 +78,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.API_TOKEN}`
       },
-      body: JSON.stringify(cleanedBody),
+      body: JSON.stringify(backendPayload),
     });
 
     if (!response.ok) {
@@ -83,7 +86,7 @@ export async function POST(request: Request) {
       console.error('Backend rejection:', {
         status: response.status,
         error: errorData,
-        sentPayload: cleanedBody
+        sentPayload: backendPayload
       });
       return NextResponse.json(errorData, { status: response.status });
     }

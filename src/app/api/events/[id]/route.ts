@@ -1,20 +1,21 @@
 import { NextResponse } from 'next/server';
-import { Event } from '../types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const response = await fetch(`${API_URL}/events/${params.id}`);
+    const { id } = await params;
+    const response = await fetch(`${API_URL}/events/${id}`);
     if (!response.ok) {
       throw new Error('Failed to fetch event');
     }
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error) {
+  } catch (err) {
+    console.error('Error fetching event:', err);
     return NextResponse.json(
       { message: 'Error fetching event' },
       { status: 500 }
@@ -24,19 +25,43 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
-    console.log('Updating event:', params.id, body);
+    console.log('Updating event:', id, body);    // Prepare payload for backend (exclude updatedAt/createdAt)
+    const backendPayload: Record<string, unknown> = {
+      title: body.title,
+      description: body.description,
+      date: body.date,
+      location: body.location,
+      imageUrl: body.imageUrl,
+    };
 
-    const response = await fetch(`${API_URL}/events/${params.id}`, {
+    // Format endTime to ISO string if provided
+    if (body.endTime) {
+      // If endTime is just time (e.g., "17:00"), combine with date
+      if (body.endTime.length <= 8 && body.endTime.includes(':')) {
+        const eventDate = new Date(body.date);
+        const [hours, minutes] = body.endTime.split(':');
+        eventDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        backendPayload.endTime = eventDate.toISOString();
+      } else {
+        // If it's already an ISO string, use as-is
+        backendPayload.endTime = body.endTime;
+      }
+    }
+
+    console.log('Sending to backend:', backendPayload);
+
+    const response = await fetch(`${API_URL}/events/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.API_TOKEN}`
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(backendPayload),
     });
 
     if (!response.ok) {
@@ -44,7 +69,7 @@ export async function PATCH(
       console.error('Backend rejection:', {
         status: response.status,
         error: errorData,
-        sentPayload: body
+        sentPayload: backendPayload
       });
       return NextResponse.json(errorData, { status: response.status });
     }
@@ -68,10 +93,11 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const response = await fetch(`${API_URL}/events/${params.id}`, {
+    const { id } = await params;
+    const response = await fetch(`${API_URL}/events/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${process.env.API_TOKEN}`
@@ -83,10 +109,11 @@ export async function DELETE(
     }
 
     return NextResponse.json({ message: 'Event deleted successfully' });
-  } catch (error) {
+  } catch (err) {
+    console.error('Error deleting event:', err);
     return NextResponse.json(
       { message: 'Error deleting event' },
       { status: 500 }
     );
   }
-} 
+}

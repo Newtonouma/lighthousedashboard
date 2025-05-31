@@ -1,30 +1,269 @@
-/* EventCard component specific styles go here */ 
+/* EventCard.module.css - Modern design with green/red gradient theme */
+
 .card {
-  background: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 2px 12px rgba(10,49,10,0.08);
-  border: 1px solid rgba(10,49,10,0.1);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(10, 49, 10, 0.08);
+  border: 1px solid rgba(10, 49, 10, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+  position: relative;
 }
+
 .card:hover {
-  box-shadow: 0 6px 24px rgba(10,49,10,0.15);
+  box-shadow: 0 12px 32px rgba(10, 49, 10, 0.15);
   transform: translateY(-4px);
+  border-color: rgba(34, 197, 94, 0.2);
 }
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+}
+
 .cardImage {
   width: 100%;
-  height: 180px;
+  height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
 }
+
+.card:hover .cardImage {
+  transform: scale(1.03);
+}
+
+.dateOverlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 0.75rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.dateDay {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #22c55e;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.dateYear {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(10, 49, 10, 0.7);
+  line-height: 1;
+}
+
+.cardContent {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 1rem;
+}
+
+.eventHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .cardTitle {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 1rem 1rem 0.5rem 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0a310a;
+  line-height: 1.3;
+  margin: 0;
+  position: relative;
 }
+
+.cardTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, #22c55e 0%, #ef4444 100%);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.card:hover .cardTitle::after {
+  width: 80px;
+}
+
+.eventMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.eventDateTime, .eventLocation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.eventDateTime {
+  color: #22c55e;
+}
+
+.eventLocation {
+  color: #ef4444;
+}
+
 .cardDescription {
-  color: rgba(10,49,10,0.7);
-  font-size: 0.95rem;
-  margin: 0 1rem 1rem 1rem;
-} 
+  color: rgba(10, 49, 10, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.eventActions {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  margin-top: auto;
+  border-top: 1px solid rgba(10, 49, 10, 0.1);
+}
+
+.editButton, .deleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  flex: 1;
+  border: 1px solid;
+  position: relative;
+  overflow: hidden;
+}
+
+.editButton {
+  background: rgba(34, 197, 94, 0.05);
+  border-color: rgba(34, 197, 94, 0.2);
+  color: #16a34a;
+}
+
+.editButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(34, 197, 94, 0.1);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.editButton:hover::before {
+  opacity: 1;
+}
+
+.editButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.deleteButton {
+  background: rgba(239, 68, 68, 0.05);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+}
+
+.deleteButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(239, 68, 68, 0.1);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.deleteButton:hover::before {
+  opacity: 1;
+}
+
+.deleteButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.editButton > *, .deleteButton > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .cardContent {
+    padding: 1.25rem;
+    gap: 0.75rem;
+  }
+  
+  .cardTitle {
+    font-size: 1.125rem;
+  }
+  
+  .eventActions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .editButton, .deleteButton {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dateOverlay {
+    padding: 0.5rem;
+    top: 8px;
+    left: 8px;
+  }
+  
+  .dateDay {
+    font-size: 0.875rem;
+  }
+  
+  .dateYear {
+    font-size: 0.6875rem;
+  }
+  
+  .cardContent {
+    padding: 1rem;
+  }
+}

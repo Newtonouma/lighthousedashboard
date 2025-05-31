@@ -1,17 +1,58 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Performance optimizations
+  reactStrictMode: true,
+  
+  // Image optimization
   images: {
-    domains: ['example.com', 'images.unsplash.com', 'picsum.photos'],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
+    domains: ['images.unsplash.com', 'picsum.photos', 'via.placeholder.com', 'example.com'],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+        port: '',
+        pathname: '/**',
+      },      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+        pathname: '/uploads/**',
       },
     ],
   },
-  experimental: {
-    serverActions: {},
+    // Server-side package handling
+  serverExternalPackages: ['@supabase/supabase-js'],
+  
+  // Compiler optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   },
-}
+};
 
-module.exports = nextConfig 
+module.exports = nextConfig;

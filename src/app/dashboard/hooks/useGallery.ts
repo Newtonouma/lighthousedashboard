@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { GalleryItem, CreateGalleryDto, UpdateGalleryDto } from '../../api/gallery/types';
 
 export function useGallery() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchGallery = async (): Promise<GalleryItem[]> => {
+  const fetchGallery = useCallback(async (): Promise<GalleryItem[]> => {
     setLoading(true);
     setError(null);
     try {
@@ -21,9 +21,9 @@ export function useGallery() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const createGalleryItem = async (data: CreateGalleryDto): Promise<boolean> => {
+  const createGalleryItem = useCallback(async (data: CreateGalleryDto): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
@@ -44,9 +44,9 @@ export function useGallery() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateGalleryItem = async (id: string, data: UpdateGalleryDto): Promise<boolean> => {
+  const updateGalleryItem = useCallback(async (id: string, data: UpdateGalleryDto): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
@@ -67,9 +67,9 @@ export function useGallery() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const deleteGalleryItem = async (id: string): Promise<boolean> => {
+  const deleteGalleryItem = useCallback(async (id: string): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
@@ -86,7 +86,7 @@ export function useGallery() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return {
     loading,

@@ -1,33 +1,23 @@
 export interface Team {
-  id: string;
+  id?: string;
   name: string;
-  role: string;
   description: string;
   imageUrl: string;
-  linkedinUrl?: string;
-  twitterUrl?: string;
-  githubUrl?: string;
+  contact?: string;
+  email?: string;
+  facebook?: string;
+  linkedin?: string;
+  twitter?: string;
+  tiktok?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface CreateTeamDto {
-  name: string;
-  role: string;
-  description: string;
-  imageUrl: string;
-  linkedinUrl?: string;
-  twitterUrl?: string;
-  githubUrl?: string;
-}
+// Type alias for creating teams (excludes auto-generated fields)
+export type CreateTeamDto = Omit<Team, 'id' | 'createdAt' | 'updatedAt'>;
 
-export interface UpdateTeamDto {
-  name?: string;
-  role?: string;
-  description?: string;
-  imageUrl?: string;
-  linkedinUrl?: string;
-  twitterUrl?: string;
-  githubUrl?: string;
-}
+// Type alias for updating teams (excludes auto-generated fields and allows partial updates)
+export type UpdateTeamDto = Partial<Omit<Team, 'id' | 'createdAt' | 'updatedAt'>>;
 
 export function isValidUrl(url: string): boolean {
   try {
@@ -38,18 +28,29 @@ export function isValidUrl(url: string): boolean {
   }
 }
 
-export function validateTeamData(data: CreateTeamDto | UpdateTeamDto): string | null {
-  if ('imageUrl' in data && data.imageUrl && !isValidUrl(data.imageUrl)) {
-    return 'imageUrl must be a valid URL address';
+export function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+export function validateTeamData(data: Partial<Team>): string | null {
+  if (data.imageUrl && !isValidUrl(data.imageUrl)) {
+    return 'Image URL must be a valid URL address';
   }
-  if ('linkedinUrl' in data && data.linkedinUrl && !isValidUrl(data.linkedinUrl)) {
-    return 'linkedinUrl must be a valid URL address';
+  if (data.email && !isValidEmail(data.email)) {
+    return 'Email must be a valid email address';
   }
-  if ('twitterUrl' in data && data.twitterUrl && !isValidUrl(data.twitterUrl)) {
-    return 'twitterUrl must be a valid URL address';
+  if (data.facebook && !isValidUrl(data.facebook)) {
+    return 'Facebook URL must be a valid URL address';
   }
-  if ('githubUrl' in data && data.githubUrl && !isValidUrl(data.githubUrl)) {
-    return 'githubUrl must be a valid URL address';
+  if (data.linkedin && !isValidUrl(data.linkedin)) {
+    return 'LinkedIn URL must be a valid URL address';
+  }
+  if (data.twitter && !isValidUrl(data.twitter)) {
+    return 'Twitter URL must be a valid URL address';
+  }
+  if (data.tiktok && !isValidUrl(data.tiktok)) {
+    return 'TikTok URL must be a valid URL address';
   }
   return null;
-} 
+}

@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Cause } from '../../api/causes/types';
 
 export function useCauses() {
   const [causes, setCauses] = useState<Cause[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const fetchCauses = async () => {
+  const fetchCauses = useCallback(async () => {
     try {
       const response = await fetch('/api/causes');
       if (!response.ok) {
@@ -21,9 +20,8 @@ export function useCauses() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const createCause = async (newCause: Partial<Cause>) => {
+  }, []);
+  const createCause = useCallback(async (newCause: Partial<Cause>) => {
     try {
       const response = await fetch('/api/causes', {
         method: 'POST',
@@ -43,7 +41,7 @@ export function useCauses() {
       setError(err instanceof Error ? err.message : 'An error occurred');
       return false;
     }
-  };
+  }, [fetchCauses]);
 
   const deleteCause = async (id: string) => {
     try {
@@ -59,9 +57,7 @@ export function useCauses() {
       setError(err instanceof Error ? err.message : 'An error occurred');
       return false;
     }
-  };
-
-  const updateCause = async (id: string, updatedCause: Partial<Cause>) => {
+  };  const updateCause = async (id: string, updatedCause: Partial<Cause>) => {
     try {
       const response = await fetch(`/api/causes/${id}`, {
         method: 'PATCH',
@@ -82,10 +78,9 @@ export function useCauses() {
       return false;
     }
   };
-
   useEffect(() => {
     fetchCauses();
-  }, []);
+  }, [fetchCauses]);
 
   return {
     causes,

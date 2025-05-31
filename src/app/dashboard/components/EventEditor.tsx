@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Event, CreateEventDto } from '../../api/events/types';
-import Image from 'next/image';
+import ImageUpload from '@/components/ImageUpload';
 
 interface EventEditorProps {
   event?: Event;
@@ -11,57 +11,23 @@ interface EventEditorProps {
 }
 
 export default function EventEditor({ event, onSave, onClose }: EventEditorProps) {
-  const [formData, setFormData] = useState<CreateEventDto>({
+  const [formData, setFormData] = useState({
     title: event?.title || '',
-    shortDescription: event?.shortDescription || '',
     description: event?.description || '',
-    category: event?.category || '',
-    imageUrl: event?.imageUrl || '',
     date: event?.date || '',
-    time: event?.time || '',
+    endTime: event?.endTime || '',
+    location: event?.location || '',
+    imageUrl: event?.imageUrl || '',
   });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(event?.imageUrl || null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Preview the image
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-
-    // Upload the image
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload image');
-      }
-
-      const data = await response.json();
-      setFormData(prev => ({ ...prev, imageUrl: data.url }));
-    } catch (err) {
-      setError('Failed to upload image. Please try again.');
-      console.error('Upload error:', err);
-    }
+  const handleImageUpload = (result: { url: string; publicId?: string }) => {
+    setFormData(prev => ({ ...prev, imageUrl: result.url }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,7 +36,16 @@ export default function EventEditor({ event, onSave, onClose }: EventEditorProps
     setError(null);
 
     try {
-      await onSave(formData);
+      const backendData: CreateEventDto = {
+        title: formData.title,
+        description: formData.description,
+        date: formData.date,
+        location: formData.location,
+        imageUrl: formData.imageUrl,
+        ...(formData.endTime && { endTime: formData.endTime })
+      };
+      
+      await onSave(backendData);
       onClose();
     } catch (err) {
       setError('Failed to save event. Please try again.');
@@ -78,10 +53,6 @@ export default function EventEditor({ event, onSave, onClose }: EventEditorProps
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
   };
 
   return (
@@ -98,8 +69,7 @@ export default function EventEditor({ event, onSave, onClose }: EventEditorProps
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
+        <form onSubmit={handleSubmit}>          <div className="form-group">
             <label htmlFor="title">Title</label>
             <input
               type="text"
@@ -113,37 +83,6 @@ export default function EventEditor({ event, onSave, onClose }: EventEditorProps
           </div>
 
           <div className="form-group">
-            <label htmlFor="shortDescription">Short Description</label>
-            <input
-              type="text"
-              id="shortDescription"
-              name="shortDescription"
-              value={formData.shortDescription}
-              onChange={handleChange}
-              required
-              placeholder="Enter a brief description"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="category">Category</label>
-            <select
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select a category</option>
-              <option value="workshop">Workshop</option>
-              <option value="conference">Conference</option>
-              <option value="seminar">Seminar</option>
-              <option value="networking">Networking</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div className="form-group">
             <label htmlFor="description">Description</label>
             <textarea
               id="description"
@@ -151,59 +90,30 @@ export default function EventEditor({ event, onSave, onClose }: EventEditorProps
               value={formData.description}
               onChange={handleChange}
               required
-              placeholder="Enter detailed description"
+              placeholder="Enter event description"
               rows={4}
             />
           </div>
 
           <div className="form-group">
+            <label htmlFor="location">Location</label>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              required
+              placeholder="Enter event location"
+            />
+          </div>          <div className="form-group">
             <label>Event Image</label>
-            <div className="image-upload-container">
-              {previewUrl ? (
-                <div className="image-preview">
-                  <Image
-                    src={previewUrl}
-                    alt="Preview"
-                    width={400}
-                    height={300}
-                    className="preview-image"
-                  />
-                  <button
-                    type="button"
-                    className="btn-remove-image"
-                    onClick={() => {
-                      setPreviewUrl(null);
-                      setFormData(prev => ({ ...prev, imageUrl: '' }));
-                      if (fileInputRef.current) {
-                        fileInputRef.current.value = '';
-                      }
-                    }}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ) : (
-                <div className="upload-placeholder">
-                  <p>Drag and drop an image here, or click to select</p>
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    onClick={triggerFileInput}
-                  >
-                    Choose Image
-                  </button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="image-input"
-                    aria-label="Upload event image"
-                    style={{ display: 'none' }}
-                  />
-                </div>
-              )}
-            </div>
+            <ImageUpload
+              currentImageUrl={formData.imageUrl}
+              onUpload={handleImageUpload}
+              onError={(error) => setError(error)}
+              folder="events"
+            />
           </div>
 
           <div className="form-row">
@@ -220,14 +130,14 @@ export default function EventEditor({ event, onSave, onClose }: EventEditorProps
             </div>
 
             <div className="form-group">
-              <label htmlFor="time">Time</label>
+              <label htmlFor="endTime">End Time (Optional)</label>
               <input
                 type="time"
-                id="time"
-                name="time"
-                value={formData.time}
+                id="endTime"
+                name="endTime"
+                value={formData.endTime}
                 onChange={handleChange}
-                required
+                placeholder="HH:MM"
               />
             </div>
           </div>

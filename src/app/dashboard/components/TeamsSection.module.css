@@ -1,20 +1,66 @@
 /* TeamsSection component specific styles go here */ 
 .section {
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 .sectionHeader {
   font-size: 2rem;
   font-weight: bold;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   text-align: center;
   background: linear-gradient(90deg, #22c55e, #ef4444);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+  position: relative;
+}
+.sectionHeader::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #22c55e, #ef4444);
+  border-radius: 4px;
 }
 .cardGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-} 
+  gap: 2rem;
+  animation: fadeInGrid 0.8s ease-out;
+}
+
+@keyframes fadeInGrid {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cardGrid > * {
+  animation: slideInUp 0.6s ease-out backwards;
+}
+
+.cardGrid > *:nth-child(1) { animation-delay: 0.1s; }
+.cardGrid > *:nth-child(2) { animation-delay: 0.2s; }
+.cardGrid > *:nth-child(3) { animation-delay: 0.3s; }
+.cardGrid > *:nth-child(4) { animation-delay: 0.4s; }
+.cardGrid > *:nth-child(5) { animation-delay: 0.5s; }
+.cardGrid > *:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

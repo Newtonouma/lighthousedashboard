@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { GalleryItem, CreateGalleryDto } from '../../api/gallery/types';
-import Image from 'next/image';
+import ImageUpload from '@/components/ImageUpload';
+import styles from './GalleryEditor.module.css';
 
 interface GalleryEditorProps {
   item?: GalleryItem;
@@ -11,204 +12,125 @@ interface GalleryEditorProps {
 }
 
 export default function GalleryEditor({ item, onSave, onClose }: GalleryEditorProps) {
-  const [formData, setFormData] = useState<CreateGalleryDto>({
-    src: '',
-    alt: '',
-    title: '',
-    description: '',
+  const [formData, setFormData] = useState({
+    caption: '',
+    imageUrl: '',
   });
-  const [previewUrl, setPreviewUrl] = useState<string | null>(item?.src || null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (item) {
       setFormData({
-        src: item.src,
-        alt: item.alt,
-        title: item.title,
-        description: item.description,
+        caption: item.caption || '',
+        imageUrl: item.imageUrl || '',
       });
-      setPreviewUrl(item.src);
+    } else {
+      setFormData({
+        caption: '',
+        imageUrl: '',
+      });
     }
   }, [item]);
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Preview the image
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-
-    // Upload the image
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload image');
-      }
-
-      const data = await response.json();
-      setFormData(prev => ({ ...prev, src: data.url }));
-    } catch (err) {
-      setError('Failed to upload image. Please try again.');
-      console.error('Upload error:', err);
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
+  const handleImageUpload = (result: { url: string; publicId?: string }) => {
+    setFormData(prev => ({ ...prev, imageUrl: result.url }));
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await onSave(formData);
-    if (success) {
-      onClose();
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const backendData: CreateGalleryDto = {
+        caption: formData.caption,
+        imageUrl: formData.imageUrl
+      };
+      
+      const success = await onSave(backendData);
+      if (success) {
+        onClose();
+      }
+    } catch (err) {
+      setError('Failed to save gallery item. Please try again.');
+      console.error('Save error:', err);
+    } finally {
+      setIsSubmitting(false);
     }
-  };
-
-  const renderImagePreview = () => {
-    if (!previewUrl) return null;
-
-    // Check if the preview URL is a base64 string
-    const isBase64 = previewUrl.startsWith('data:image');
-    
-    if (isBase64) {
-      return (
-        <img
-          src={previewUrl}
-          alt="Preview"
-          className="preview-image"
-          style={{ width: '100%', height: 'auto', maxHeight: '300px', objectFit: 'contain' }}
-        />
-      );
-    }
-
-    // For regular URLs, use Next.js Image component
-    return (
-      <Image
-        src={previewUrl}
-        alt="Preview"
-        width={400}
-        height={300}
-        className="preview-image"
-        style={{ objectFit: 'contain' }}
-      />
-    );
   };
 
   return (
-    <div className="gallery-editor">
-      <div className="editor-form">
-        <div className="form-header">
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent}>
+        <div className={styles.editorHeader}>
           <h2>{item ? 'Edit Gallery Item' : 'Add Gallery Item'}</h2>
-          <button className="btn-close" onClick={onClose}>×</button>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Gallery Image</label>
-            <div className="image-upload-container">
-              {previewUrl ? (
-                <div className="image-preview">
-                  {renderImagePreview()}
-                  <button
-                    type="button"
-                    className="btn-remove-image"
-                    onClick={() => {
-                      setPreviewUrl(null);
-                      setFormData(prev => ({ ...prev, src: '' }));
-                      if (fileInputRef.current) {
-                        fileInputRef.current.value = '';
-                      }
-                    }}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ) : (
-                <div className="upload-placeholder">
-                  <p>Drag and drop an image here, or click to select</p>
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    onClick={triggerFileInput}
-                  >
-                    Choose Image
-                  </button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="image-input"
-                    aria-label="Upload gallery image"
-                    style={{ display: 'none' }}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="alt">Alt Text</label>
-            <input
-              type="text"
-              id="alt"
-              value={formData.alt}
-              onChange={(e) => setFormData({ ...formData, alt: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="title">Title</label>
-            <input
-              type="text"
-              id="title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
+          <button 
+            className={styles.closeButton}
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>        <form onSubmit={handleSubmit} className={styles.editorForm}>
+          <div className={styles.formGroup}>
+            <label htmlFor="caption">Caption</label>
             <textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              id="caption"
+              name="caption"
+              value={formData.caption}
+              onChange={handleChange}
               required
+              placeholder="Enter a caption for this gallery item"
+              rows={3}
+              className={styles.formTextarea}
             />
           </div>
 
-          {error && (
-            <div className="error-message">
-              {error}
+          <div className={styles.formGroup}>
+            <label>Gallery Image</label>
+            <div className={styles.imageUploadContainer}>
+              <ImageUpload
+                currentImageUrl={formData.imageUrl}
+                onUpload={handleImageUpload}
+                onError={(error) => setError(error)}
+                folder="gallery"
+              />
             </div>
-          )}
+          </div>
 
-          <div className="editor-actions">
-            <button type="button" className="btn-secondary" onClick={onClose}>
+          {error && <div className={styles.errorMessage}>{error}</div>}
+
+          <div className={styles.formActions}>
+            <button
+              type="button"
+              className={styles.cancelButton}
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
               Cancel
             </button>
-            <button type="submit" className="btn-primary">
-              {item ? 'Update' : 'Create'}
+            <button
+              type="submit"
+              className={styles.submitButton}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <span className={styles.spinner}></span>
+              ) : (
+                item ? 'Update Item' : 'Create Item'
+              )}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-} 
+}

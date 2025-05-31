@@ -1,15 +1,317 @@
-/* CausesPanel component specific styles go here */ 
-.panel {
-    background: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 2px 12px rgba(10,49,10,0.08);
-    border: 1px solid rgba(10,49,10,0.1);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  .panelTitle {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
+/* CausesPanel.module.css - Consistent green/red gradient theme matching GalleryPanel */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 2.25rem;
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 50%, #dc2626 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #6b7280;
+  opacity: 0.8;
+}
+
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.2),
+              0 2px 4px -1px rgba(34, 197, 94, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.addButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.addButton:hover::before {
+  opacity: 1;
+}
+
+.addButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px -3px rgba(34, 197, 94, 0.3),
+              0 4px 6px -2px rgba(34, 197, 94, 0.1);
+}
+
+.addButton:active {
+  transform: translateY(-1px);
+}
+
+.addButton > * {
+  position: relative;
+  z-index: 1;
+}
+
+.addButtonIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.errorContainer {
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 0.75rem;
+  color: #dc2626;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.1);
+}
+
+.errorMessage {
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 0;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.02) 0%, rgba(22, 163, 74, 0.02) 100%);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(34, 197, 94, 0.1);
+}
+
+.loadingSpinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid rgba(34, 197, 94, 0.2);
+  border-top: 3px solid #22c55e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.causesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+}
+
+/* Empty state styling */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.02) 0%, rgba(22, 163, 74, 0.02) 100%);
+  border: 2px dashed rgba(34, 197, 94, 0.2);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.emptyState:hover {
+  border-color: rgba(34, 197, 94, 0.3);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.04) 0%, rgba(22, 163, 74, 0.04) 100%);
+}
+
+.emptyStateIcon {
+  width: 4rem;
+  height: 4rem;
+  color: #22c55e;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.emptyStateTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0a310a;
+  margin-bottom: 0.5rem;
+}
+
+.emptyStateDescription {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  max-width: 24rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.75rem;
+    gap: 1.25rem;
   }
   
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  
+  .causesGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .addButton {
+    width: 100%;
+    justify-content: center;
+    padding: 0.875rem 1.25rem;
+  }
+  
+  .emptyState {
+    padding: 3rem 1.5rem;
+  }
+  
+  .emptyStateIcon {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  .title {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+  
+  .subtitle {
+    font-size: 0.8125rem;
+  }
+  
+  .addButton {
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
+  }
+  
+  .addButtonIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .causesGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .emptyState {
+    padding: 2rem 1rem;
+  }
+  
+  .emptyStateTitle {
+    font-size: 1.125rem;
+  }
+  
+  .emptyStateDescription {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Focus states for accessibility */
+.addButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3),
+              0 8px 15px -3px rgba(34, 197, 94, 0.3),
+              0 4px 6px -2px rgba(34, 197, 94, 0.1);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .title {
+    background: #15803d;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .addButton {
+    background: #16a34a;
+    border: 2px solid #15803d;
+  }
+  
+  .errorContainer {
+    border-width: 2px;
+    background: rgba(239, 68, 68, 0.1);
+  }
+  
+  .emptyState {
+    border-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .addButton,
+  .loadingSpinner,
+  .emptyState {
+    transition: none;
+    animation: none;
+  }
+  
+  .addButton:hover {
+    transform: none;
+  }
+  
+  .loadingSpinner {
+    border-top-color: #22c55e;
+    animation: none;
+  }
+}

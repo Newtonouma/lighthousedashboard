@@ -1,30 +1,130 @@
-/* GalleryCard component specific styles go here */ 
 .card {
-  background: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 2px 12px rgba(10,49,10,0.08);
-  border: 1px solid rgba(10,49,10,0.1);
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(10, 49, 10, 0.08);
+  border: 1px solid rgba(10, 49, 10, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition: all 0.3s ease;
+  height: 100%;
 }
+
 .card:hover {
-  box-shadow: 0 6px 24px rgba(10,49,10,0.15);
+  box-shadow: 0 8px 24px rgba(10, 49, 10, 0.15);
   transform: translateY(-4px);
 }
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
 .cardImage {
   width: 100%;
-  height: 180px;
+  height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
 }
-.cardTitle {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 1rem 1rem 0.5rem 1rem;
+
+.card:hover .cardImage {
+  transform: scale(1.03);
 }
-.cardDescription {
-  color: rgba(10,49,10,0.7);
+
+.cardContent {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.cardCaption {
   font-size: 0.95rem;
-  margin: 0 1rem 1rem 1rem;
-} 
+  color: rgba(10, 49, 10, 0.8);
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+  flex-grow: 1;
+}
+
+.cardTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #22c55e, #ef4444);
+  transition: width 0.3s ease;
+}
+
+.card:hover .cardTitle::after {
+  width: 80px;
+}
+
+.cardDescription {
+  color: rgba(10, 49, 10, 0.7);
+  font-size: 0.875rem;
+  margin: 0 0 1.25rem 0;
+  line-height: 1.6;
+  flex-grow: 1;
+}
+
+.categoryBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 0.25rem 0.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #22c55e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4px);
+}
+
+.galleryActions {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  margin-top: auto;
+  border-top: 1px solid rgba(10, 49, 10, 0.1);
+}
+
+.editButton, .deleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  flex: 1;
+}
+
+.editButton {
+  background: rgba(34, 197, 94, 0.05);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.editButton:hover {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.deleteButton {
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.deleteButton:hover {
+  background: rgba(239, 68, 68, 0.1);
+}

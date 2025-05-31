@@ -32,11 +32,10 @@ export default function Signup() {
         throw error;
       }
 
-      setSuccess(true);
-      // Optional: automatically redirect after success
+      setSuccess(true);      // Optional: automatically redirect after success
       setTimeout(() => router.push('/login'), 3000);
-    } catch (err: any) {
-      setError(err.message || 'Signup failed. Please try again.');
+    } catch (err: unknown) {
+      setError((err as Error)?.message || 'Signup failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

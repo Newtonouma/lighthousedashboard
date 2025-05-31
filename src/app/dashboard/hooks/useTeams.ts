@@ -1,13 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Team, CreateTeamDto, UpdateTeamDto } from '../../api/teams/types';
 
 export function useTeams() {
-  const [loading, setLoading] = useState(false);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTeams = async (): Promise<Team[]> => {
-    setLoading(true);
-    setError(null);
+  const fetchTeams = useCallback(async () => {
     try {
       const response = await fetch('/api/teams', {
         method: 'GET',
@@ -19,16 +18,15 @@ export function useTeams() {
         throw new Error('Failed to fetch teams');
       }
       const data = await response.json();
-      return data;
+      setTeams(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch teams');
-      return [];
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const createTeam = async (teamData: CreateTeamDto): Promise<boolean> => {
+  const createTeam = useCallback(async (teamData: CreateTeamDto): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
@@ -42,6 +40,7 @@ export function useTeams() {
       if (!response.ok) {
         throw new Error('Failed to create team');
       }
+      await fetchTeams(); // Refresh teams list
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create team');
@@ -49,9 +48,9 @@ export function useTeams() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchTeams]);
 
-  const updateTeam = async (id: string, teamData: UpdateTeamDto): Promise<boolean> => {
+  const updateTeam = useCallback(async (id: string, teamData: UpdateTeamDto): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
@@ -65,6 +64,7 @@ export function useTeams() {
       if (!response.ok) {
         throw new Error('Failed to update team');
       }
+      await fetchTeams(); // Refresh teams list
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update team');
@@ -72,9 +72,9 @@ export function useTeams() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchTeams]);
 
-  const deleteTeam = async (id: string): Promise<boolean> => {
+  const deleteTeam = useCallback(async (id: string): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
@@ -87,6 +87,7 @@ export function useTeams() {
       if (!response.ok) {
         throw new Error('Failed to delete team');
       }
+      await fetchTeams(); // Refresh teams list
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete team');
@@ -94,14 +95,19 @@ export function useTeams() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchTeams]);
+
+  useEffect(() => {
+    fetchTeams();
+  }, [fetchTeams]);
 
   return {
+    teams,
     loading,
     error,
-    fetchTeams,
     createTeam,
     updateTeam,
     deleteTeam,
+    refreshTeams: fetchTeams
   };
-} 
+}

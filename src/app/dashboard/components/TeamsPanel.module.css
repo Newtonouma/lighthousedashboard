@@ -1,15 +1,270 @@
-/* TeamsPanel component specific styles go here */ 
-.panel {
-    background: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 2px 12px rgba(10,49,10,0.08);
-    border: 1px solid rgba(10,49,10,0.1);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+/* TeamsPanel.module.css - Consistent green/red gradient theme matching design system */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 2.25rem;
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 50%, #dc2626 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: rgba(10, 49, 10, 0.7);
+  opacity: 0.8;
+  margin: 0;
+}
+
+.createButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.2),
+              0 2px 4px -1px rgba(34, 197, 94, 0.1);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.createButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.createButton:hover::before {
+  opacity: 1;
+}
+
+.createButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px -3px rgba(34, 197, 94, 0.3),
+              0 4px 6px -2px rgba(34, 197, 94, 0.1);
+}
+
+.createButton:active {
+  transform: translateY(-1px);
+}
+
+.createButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.createButton > * {
+  position: relative;
+  z-index: 1;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  opacity: 1;
+  animation: fadeInGrid 0.6s ease-out;
+}
+
+.cardGrid.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, 
+    rgba(34, 197, 94, 0.05) 0%, 
+    rgba(255, 255, 255, 0.02) 50%, 
+    rgba(220, 38, 38, 0.05) 100%);
+  border: 2px dashed rgba(34, 197, 94, 0.2);
+  border-radius: 1rem;
+  min-height: 300px;
+}
+
+.emptyState h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0a310a;
+  margin: 0 0 0.5rem 0;
+}
+
+.emptyState p {
+  color: rgba(10, 49, 10, 0.7);
+  margin: 0 0 1.5rem 0;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.emptyActionButton {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2);
+}
+
+.emptyActionButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  min-height: 300px;
+}
+
+.loadingSpinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid rgba(34, 197, 94, 0.2);
+  border-top: 3px solid #22c55e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.errorContainer {
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, 
+    rgba(220, 38, 38, 0.1) 0%, 
+    rgba(220, 38, 38, 0.05) 100%);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.errorMessage {
+  color: #dc2626;
+  font-weight: 500;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Animations */
+@keyframes fadeInGrid {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  .panelTitle {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.75rem;
+    gap: 1.5rem;
+  }
+  
+  .sectionHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    line-height: 1.75rem;
+    text-align: center;
+  }
+  
+  .createButton {
+    justify-content: center;
+  }
+  
+  .cardGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .emptyState {
+    padding: 2rem 1rem;
+    min-height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  .createButton {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .title {
     font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
+    line-height: 1.5rem;
   }
+}
   

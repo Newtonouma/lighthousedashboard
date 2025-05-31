@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Event, CreateEventDto, UpdateEventDto } from '../../api/events/types';
 
 export function useEvents() {
@@ -8,7 +8,7 @@ export function useEvents() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       const response = await fetch('/api/events');
       if (!response.ok) {
@@ -21,9 +21,9 @@ export function useEvents() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const createEvent = async (newEvent: CreateEventDto) => {
+  const createEvent = useCallback(async (newEvent: CreateEventDto) => {
     try {
       const response = await fetch('/api/events', {
         method: 'POST',
@@ -43,9 +43,9 @@ export function useEvents() {
       setError(err instanceof Error ? err.message : 'An error occurred');
       return false;
     }
-  };
+  }, [fetchEvents]);
 
-  const deleteEvent = async (id: string) => {
+  const deleteEvent = useCallback(async (id: string) => {
     try {
       const response = await fetch(`/api/events/${id}`, {
         method: 'DELETE',
@@ -59,9 +59,9 @@ export function useEvents() {
       setError(err instanceof Error ? err.message : 'An error occurred');
       return false;
     }
-  };
+  }, [fetchEvents]);
 
-  const updateEvent = async (id: string, updatedEvent: UpdateEventDto) => {
+  const updateEvent = useCallback(async (id: string, updatedEvent: UpdateEventDto) => {
     try {
       const response = await fetch(`/api/events/${id}`, {
         method: 'PATCH',
@@ -81,11 +81,11 @@ export function useEvents() {
       setError(err instanceof Error ? err.message : 'An error occurred');
       return false;
     }
-  };
+  }, [fetchEvents]);
 
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [fetchEvents]);
 
   return {
     events,
@@ -96,4 +96,4 @@ export function useEvents() {
     updateEvent,
     refreshEvents: fetchEvents
   };
-} 
+}
