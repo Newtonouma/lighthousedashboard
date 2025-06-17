@@ -39,20 +39,6 @@ const ErrorMessage = ({ error }: { error: string }) => (
   <div className="error-message">{error}</div>
 );
 
-const AuthErrorMessage = ({ error, onRetry }: { error: string, onRetry: () => void }) => (
-  <div className="max-w-md mx-auto p-6">
-    <div className="alert alert-error">
-      {error}
-    </div>
-    <button
-      onClick={onRetry}
-      className="btn btn-primary mt-4"
-    >
-      Return to Login
-    </button>
-  </div>
-);
-
 // Dashboard Content Renderer
 const DashboardContent = ({
   activeComponent,
@@ -100,7 +86,6 @@ export default function Dashboard() {
   // Authentication state
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [authError, setAuthError] = useState<string | null>(null);
   const router = useRouter();
 
   // Dashboard state
@@ -122,10 +107,11 @@ export default function Dashboard() {
     const checkUser = async () => {
       try {
         const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) throw error;
-        if (!user) router.push('/login');
-        else setUser(user as User);      } catch (err: unknown) {
-        setAuthError((err as Error)?.message || 'Failed to load user data');
+        if (error || !user) {
+          router.push('/'); // Always redirect to landing page if not authenticated or error
+          return;
+        }
+        setUser(user as User);
       } finally {
         setIsAuthLoading(false);
       }
@@ -146,8 +132,7 @@ export default function Dashboard() {
 
   // Render auth states
   if (isAuthLoading) return <AuthLoadingSpinner />;
-  if (authError) return <AuthErrorMessage error={authError} onRetry={() => router.push('/login')} />;
-  if (!user) return <AuthLoadingSpinner />;
+  if (!user) return null;
 
   return (
     <>
